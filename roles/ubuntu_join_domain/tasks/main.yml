@@ -40,6 +40,42 @@
     regexp: 'use_fully_qualified_names = True'
     replace: 'use_fully_qualified_names = False'
 
+- name: modify /etc/sssd/sssd.conf for get ssh pub key from ad
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    line: 'ldap_user_extra_attrs = altSecurityIdentities:altSecurityIdentities'
+    insertafter: EOF
+
+- name: modify /etc/sssd/sssd.conf for get ssh pub key from ad
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    line: 'ldap_user_ssh_public_key = altSecurityIdentities'
+    insertafter: EOF
+
+- name: modify /etc/sssd/sssd.conf for get ssh pub key from ad
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    line: 'ldap_use_tokengroups = True'
+    insertafter: EOF
+
+- name: modify /etc/sssd/sssd.conf for get ssh pub key from ad
+  ansible.builtin.replace:
+    path: /etc/sssd/sssd.conf
+    regexp: 'services =.*$'
+    replace: 'services = nss, pam, ssh'
+
+- name: modify /etc/ssh/sshd_config for get ssh pub key from ad
+  ansible.builtin.replace:
+    path: /etc/ssh/sshd_config
+    regexp: '#AuthorizedKeysCommand .*$'
+    replace: 'AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys'
+
+- name: modify /etc/ssh/sshd_config for get ssh pub key from ad
+  ansible.builtin.replace:
+    path: /etc/ssh/sshd_config
+    regexp: '#AuthorizedKeysCommandUser .*$'
+    replace: 'AuthorizedKeysCommandUser nobody'
+
 - name: modify /etc/pam.d/common-session
   ansible.builtin.lineinfile:
     path: /etc/pam.d/common-session
@@ -49,6 +85,7 @@
 - name: pause for join domain (3 min)
   pause:
     minutes: 3
+  when: domain_check_result.stdout == "0"
 
 - name: add permit to domain admins
   shell: realm permit -g "Linux Admin@{{domain}}"
@@ -77,6 +114,11 @@
     name: sssd
     state: restarted
 
+- name: restart ssh
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+
 - name: create nsupdate.conf
   ansible.builtin.template:
     src: nsupdate.conf.j2
@@ -87,7 +129,7 @@
     name: update dns
     minute: "*/10"
     user: root
-    job: "*/10 * * * * klist -c /tmp/krb_cache_dns >> /dev/null || ( HOSTNAME_UP=`bash -c 'echo $HOSTNAME' | tr '[a-z]' '[A-Z]'`; kinit -k -t /etc/krb5.keytab -c /tmp/krb_cache_dns $HOSTNAME_UP$ >> /dev/null ) && (env KRB5CCNAME=/tmp/krb_cache_dns nsupdate -g /etc/nsupdate.conf)"
+    job: "klist -c /tmp/krb_cache_dns >> /dev/null || ( HOSTNAME_UP=`bash -c 'echo $HOSTNAME' | tr '[a-z]' '[A-Z]'`; kinit -k -t /etc/krb5.keytab -c /tmp/krb_cache_dns $HOSTNAME_UP$ >> /dev/null ) && (env KRB5CCNAME=/tmp/krb_cache_dns nsupdate -g /etc/nsupdate.conf)"
   when: is_sec_dns is defined and is_sec_dns
 
 - name: add dns update job to cron (for unsec dns update)

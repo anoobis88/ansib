@@ -29,8 +29,8 @@
       vars:
         ntp_servers: "ntp.office.sspk.spb.ru ru.pool.ntp.org"
     - role: ubuntu_join_domain
-      vars:
-        dedicated_user: "{{domain_user}}"
+#      vars:
+#        dedicated_user: "{{domain_user}}"
     - role: ubuntu_zabbix-agent2
       vars:
         zabbix_server: "rover-zbx.infra.adc.spb"
