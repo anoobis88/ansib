@@ -1,0 +1,3 @@
+UserParameter=systemd.unit.is-active[*],if [ $2 ]; then systemctl is-active $1@$2; else systemctl is-active $1; fi > /dev/null && echo 1 || echo 0
+UserParameter=systemd.unit.is-enabled[*],if [ $2 ]; then systemctl is-enabled $1@$2; else systemctl is-enabled $1; fi > /dev/null && echo 1 || echo 0
+UserParameter=systemd.unit.is-failed[*],if [ $2 ]; then systemctl is-failed $1@$2; else systemctl is-failed $1; fi > /dev/null && echo 1 || echo 0

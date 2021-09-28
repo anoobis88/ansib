@@ -1,0 +1,15 @@
+- name: edit /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_CMDLINE_LINUX=""'
+    line: 'GRUB_CMDLINE_LINUX="ipv6.disable=1"'
+  register: edit_grub_result
+
+- name: update grub
+  shell:
+    cmd: update-grub
+  when: edit_grub_result.changed
+
+- name: reboot
+  ansible.builtin.reboot:
+  when: edit_grub_result.changed

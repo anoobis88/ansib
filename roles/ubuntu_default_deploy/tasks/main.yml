@@ -1,0 +1,62 @@
+- name: modify /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: '127.0.0.1	{{hostname}}.{{domain}}	{{hostname}}'
+    insertbefore: BOF
+
+- name: create resolv.conf symlink
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: yes
+
+- name: add proxy to apt
+  ansible.builtin.template:
+    src: apt_proxy.conf.j2
+    dest: /etc/apt/apt.conf.d/proxy.conf 
+  when: proxy_address is defined
+
+- name: add http proxy to snap
+  shell:
+    cmd: snap set system proxy.http="{{proxy_address}}"
+  when: proxy_address is defined
+
+- name: add https proxy to snap
+  shell:
+    cmd: snap set system proxy.https="{{proxy_address}}"
+  when: proxy_address is defined
+
+- name: apt upgrade
+  ansible.builtin.apt:
+    upgrade: full
+    update_cache: yes
+
+- name: snap refresh
+  shell:
+    cmd: snap refresh
+
+- name: reboot
+  ansible.builtin.reboot:
+
+- name: config timesyncd
+  ansible.builtin.template:
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf
+  when: ntp_servers is defined
+
+- name: change /etc/localtime
+  ansible.builtin.file:
+    src: /usr/share/zoneinfo/Europe/Moscow
+    dest: /etc/localtime
+    state: link
+    force: yes
+
+- name: reconfigure tzdata
+  shell:
+    cmd: dpkg-reconfigure -f noninteractive tzdata
+
+- name: restart systemd-timesyncd
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: restarted

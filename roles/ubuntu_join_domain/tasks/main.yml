@@ -1,0 +1,101 @@
+- name: install packages for realm
+  ansible.builtin.apt:
+    pkg:
+    - realmd
+    - oddjob
+    - oddjob-mkhomedir
+    - sssd
+    - sssd-tools
+    - adcli
+    - samba
+    - krb5-user
+
+- name: check domain
+  shell:
+    cmd: realm list {{domain}} | wc -l
+  register: domain_check_result
+
+- name: join domain
+  ansible.builtin.expect:
+    command: realm join --user={{domain_user}}@{{domain|upper}} {{domain|upper}} --install=/
+    responses:
+      (?i)password: "{{domain_pass}}"
+  when: domain_check_result.stdout == "0"
+
+- name: modify /etc/sssd/sssd.conf
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    line: 'ignore_group_members = True'
+    insertafter: EOF
+
+- name: modify /etc/sssd/sssd.conf
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    line: 'ldap_group_nesting_level = 0'
+    insertafter: EOF
+
+- name: modify /etc/sssd/sssd.conf
+  ansible.builtin.replace:
+    path: /etc/sssd/sssd.conf
+    regexp: 'use_fully_qualified_names = True'
+    replace: 'use_fully_qualified_names = False'
+
+- name: modify /etc/pam.d/common-session
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/common-session
+    insertafter: 'pam_unix.so'
+    line: 'session required pam_mkhomedir.so skel=/etc/skel/ umask=0022'  
+
+- name: pause for join domain (3 min)
+  pause:
+    minutes: 3
+
+- name: add permit to domain admins
+  shell: realm permit -g "Linux Admin@{{domain}}"
+
+- name: add to /etc/sudoers
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    insertafter: EOF
+    line: '%linux\ admin ALL=(ALL) ALL'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: add permit for dedicated user
+  shell: realm permit "{{dedicated_user}}@{{domain}}"
+  when: dedicated_user is defined
+
+- name: add to /etc/sudoers
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    insertafter: EOF
+    line: '{{dedicated_user}} ALL=(ALL) ALL'
+    validate: /usr/sbin/visudo -cf %s
+  when: dedicated_user is defined
+
+- name: restart sssd
+  ansible.builtin.systemd:
+    name: sssd
+    state: restarted
+
+- name: create nsupdate.conf
+  ansible.builtin.template:
+    src: nsupdate.conf.j2
+    dest: /etc/nsupdate.conf
+
+- name: add dns update job to cron (for sec dns update)
+  ansible.builtin.cron:
+    name: update dns
+    minute: "*/10"
+    user: root
+    job: "*/10 * * * * klist -c /tmp/krb_cache_dns >> /dev/null || ( HOSTNAME_UP=`bash -c 'echo $HOSTNAME' | tr '[a-z]' '[A-Z]'`; kinit -k -t /etc/krb5.keytab -c /tmp/krb_cache_dns $HOSTNAME_UP$ >> /dev/null ) && (env KRB5CCNAME=/tmp/krb_cache_dns nsupdate -g /etc/nsupdate.conf)"
+  when: is_sec_dns is defined and is_sec_dns
+
+- name: add dns update job to cron (for unsec dns update)
+  ansible.builtin.cron:
+    name: update dns
+    minute: "*/10"
+    user: root
+    job: "nsupdate -g /etc/nsupdate.conf"
+  when: is_sec_dns is not defined or not is_sec_dns
+
+

@@ -1,0 +1,26 @@
+- name: get root ca from pki
+  get_url:
+    url: "{{ rootca_path }}"
+    dest: "{{ ca_dir }}"
+    mode: 0644
+    owner: root
+    group: root
+  when: rootca_path is defined
+
+- name: check base64
+  shell:
+    cmd: grep 'BEGIN CERTIFICATE' {{ rootca_name }} | wc -l
+    chdir: "{{ ca_dir }}"
+  register: res_begin_cert
+  when: rootca_path is defined
+
+- name: convert der to base64
+  shell:
+    cmd: openssl x509 -inform der -in {{ rootca_name }} -out {{ rootca_name }}
+    chdir: "{{ ca_dir }}"
+  when: rootca_path is defined and res_begin_cert.stdout == "0"
+
+- name: update ca list
+  shell:
+    cmd: update-ca-certificates
+  when: rootca_path is defined

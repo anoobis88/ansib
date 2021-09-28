@@ -1,0 +1,3 @@
+Timeout=10
+UserParameter=apt.available.updates,updates=$(/usr/lib/update-notifier/apt-check 2>&1);echo $updates | cut -d ";" -f 1
+UserParameter=apt.security.updates,updates=$(/usr/lib/update-notifier/apt-check 2>&1);echo $updates | cut -d ";" -f 2

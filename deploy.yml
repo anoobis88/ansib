@@ -1,0 +1,39 @@
+- name: deploy ubuntu
+  hosts: wg
+  gather_facts: false
+  vars_prompt:
+    - name: prompt_user
+      prompt: Enter username
+      private: no
+    - name: prompt_pass
+      prompt: Enter password
+    - name: prompt_domain_user
+      prompt: Enter domain username
+      private: no
+    - name: prompt_domain_pass
+      prompt: "Enter password for domain user"
+  vars:
+    ansible_become: True
+    ansible_become_method: sudo
+    ansible_user: "{{ prompt_user }}"
+    ansible_password: "{{ prompt_pass }}"
+    ansible_become_password: "{{ prompt_pass }}"
+    domain_user: "{{prompt_domain_user}}"
+    domain_pass: "{{prompt_domain_pass}}"
+    domain: office.sspk.spb.ru
+    is_sec_dns: true 
+#    proxy_address: "http://192.168.1.1:3128/"
+  roles:
+#    - role: ubuntu_disable_ipv6
+    - role: ubuntu_default_deploy
+      vars:
+        ntp_servers: "ntp.office.sspk.spb.ru ru.pool.ntp.org"
+    - role: ubuntu_join_domain
+      vars:
+        dedicated_user: "{{domain_user}}"
+    - role: ubuntu_zabbix-agent2
+      vars:
+        zabbix_server: "rover-zbx.infra.adc.spb"
+#    - role: ubuntu_distribute_ca
+#      vars:
+#        rootca_path: "http://pki.examle.com/RootCA.crt"
