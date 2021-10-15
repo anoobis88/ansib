@@ -19,8 +19,8 @@
 
 * domain_user
 * domain_pass
-* dedicated_user: "{{domain_user}}"  -- пользователь отдельно добавляющийся в realm permit, можно не определять (группа Linux Admin добавляется по-умолчанию, hardcode)
-
+* dedicated_user: "{{domain_user}}"  -- пользователь отдельно добавляющийся в realm permit и sudoers, можно не определять
+* admins_group  -- группа добавляющаяся в realm permit и sudoers
 
 Для роли ubuntu_default_deploy:
 * ntp_servers: "ntp.office.sspk.spb.ru ru.pool.ntp.org"  -- адреса ntp серверов, можно не определять (будут использованы сервера ru.pool.ntp.org)
