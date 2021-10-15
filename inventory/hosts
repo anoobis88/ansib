@@ -1,3 +1,4 @@
-ntp ansible_host=192.168.201.12 hostname=ntp
-wg ansible_host=192.168.201.11 hostname=wg
-#test-m2.vmeda.org ansible_host=10.228.1.69 hostname=test-m2
+ubuntu-test ansible_host=192.168.201.21 hostname=ubuntu-test
+#step-ca ansible_host=192.168.201.16 hostname=step-ca
+#ntp ansible_host=192.168.201.12 hostname=ntp
+#wg ansible_host=192.168.201.11 hostname=wg

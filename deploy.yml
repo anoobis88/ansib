@@ -1,5 +1,5 @@
 - name: deploy ubuntu
-  hosts: wg
+  hosts: ubuntu-test
   gather_facts: false
   vars_prompt:
     - name: prompt_user
@@ -29,11 +29,12 @@
       vars:
         ntp_servers: "ntp.office.sspk.spb.ru ru.pool.ntp.org"
     - role: ubuntu_join_domain
-#      vars:
+      vars:
+        admins_group: "Linux Admin"
 #        dedicated_user: "{{domain_user}}"
     - role: ubuntu_zabbix-agent2
       vars:
         zabbix_server: "rover-zbx.infra.adc.spb"
-#    - role: ubuntu_distribute_ca
-#      vars:
-#        rootca_path: "http://pki.examle.com/RootCA.crt"
+    - role: ubuntu_distribute_ca
+      vars:
+        rootca_path: "http://pki.office.sspk.spb.ru/sspk-root-ca/sspk-root-ca.crt"
