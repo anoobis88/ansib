@@ -4,48 +4,31 @@
   environment:
     http_proxy: "{{proxy_address | default('')}}"
     https_proxy: "{{proxy_address | default('')}}"
-  when: zabbix_server is defined
+  when: zabbix_repo_deb_path is defined
 
 - name: install zabbix-agent2
   ansible.builtin.apt:
     name: zabbix-agent2
     update_cache: yes
-  when: zabbix_server is defined
 
-- name: add zabbix server
-  ansible.builtin.lineinfile:
-    path: /etc/zabbix/zabbix_agent2.conf
-    regexp: '^Server='
-    line: 'Server={{zabbix_server}}'
-  when: zabbix_server is defined
-
-- name: add zabbix active server
-  ansible.builtin.lineinfile:
-    path: /etc/zabbix/zabbix_agent2.conf
-    regexp: '^ServerActive='
-    line: 'ServerActive={{zabbix_server}}'
-  when: zabbix_server is defined
-
-- name: add zabbix hostname
-  ansible.builtin.lineinfile:
-    path: /etc/zabbix/zabbix_agent2.conf
-    regexp: '^Hostname='
-    line: 'Hostname={{hostname}}.{{domain}}'
-  when: zabbix_server is defined
+- name: push zabbix_agent2.conf
+  ansible.builtin.template:
+    src: "zabbix_agent2.conf.j2"
+    dest: "/etc/zabbix/zabbix_agent2.conf"
+  notify: restart zabbix-agent2
 
 - name: add custom parameters for zabbix
   ansible.builtin.template:
     src: "{{item}}.conf.j2"
-    dest: /etc/zabbix/zabbix_agent2.d/{{item}}.conf
+    dest: "/etc/zabbix/zabbix_agent2.d/{{item}}.conf"
   loop:
     - "reboot_required"
     - "apt_updates"
     - "systemd"
     - "net"
-  when: zabbix_server is defined
+  notify: restart zabbix-agent2
 
-- name: restart zabbix-agent2
+- name: enable zabbix-agent2
   ansible.builtin.systemd:
     name: zabbix-agent2
-    state: restarted
-  when: zabbix_server is defined
+    enabled: yes

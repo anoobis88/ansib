@@ -34,7 +34,7 @@
 #        dedicated_user: "{{domain_user}}"
     - role: ubuntu_zabbix-agent2
       vars:
-        zabbix_server: "rover-zbx.infra.adc.spb"
+        zabbix_server: "rover-zbx-proxy.office.sspk.spb.ru"
     - role: ubuntu_distribute_ca
       vars:
         rootca_path: "http://pki.office.sspk.spb.ru/sspk-root-ca/sspk-root-ca.crt"
