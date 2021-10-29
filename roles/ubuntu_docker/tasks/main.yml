@@ -1,0 +1,28 @@
+- name: install repo docker.list
+  ansible.builtin.template:
+    src: "docker.list.j2"
+    dest: "/etc/apt/sources.list.d/docker.list"
+
+- name: add apt key for docker repo
+  ansible.builtin.apt_key:
+    url: "https://download.docker.com/linux/ubuntu/gpg"
+    keyring: "/usr/share/keyrings/docker-archive-keyring.gpg" 
+
+- name: install docker packages
+  ansible.builtin.apt:
+    pkg:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    update_cache: yes
+
+- name: enable docker.service
+  ansible.builtin.systemd:
+    name: docker
+    enabled: yes
+
+- name: download docker-compose
+  ansible.builtin.get_url:
+    url: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-linux-{{ansible_architecture}}"
+    dest: /usr/local/bin/docker-compose
+    mode: '0775'

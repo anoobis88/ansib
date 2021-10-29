@@ -1,4 +1,5 @@
-ubuntu-test ansible_host=192.168.201.21 hostname=ubuntu-test
+#ubuntu-test ansible_host=192.168.201.21 hostname=ubuntu-test
+seafile ansible_host=192.168.201.23 hostname=seafile
 #rover-zbx-proxy ansible_host=192.168.201.19 hostname=rover-zbx-proxy
 #step-ca ansible_host=192.168.201.16 hostname=step-ca
 #ntp ansible_host=192.168.201.12 hostname=ntp

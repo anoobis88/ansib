@@ -28,7 +28,11 @@
 
 Для роли ubuntu_zabbix_agent2:
 * zabbix_server: rover-zbx.infra.adc.spb -- адрес zabbix сервера
+* zabbix_version -- версия zabbix, по умолчанию - 5.0
 
 
 Для роли ubuntu_distribute_ca:
 * rootca_path -- место публикации сертификата корневого ЦС
+
+Для роли ubuntu_docker:
+* docker_compose_version -- версия docker-compose (только v1), по умолчанию - 1.29.2
