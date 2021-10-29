@@ -1,0 +1,14 @@
+#- name: test
+#  ansible.builtin.debug:
+#    msg: System {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }}
+#  when: ansible_default_ipv4.gateway is defined
+#- name: OS version
+#  debug: msg="{{ item }}"
+#  with_items:
+#  - "{{ ansible_distribution }}"
+#  - "{{ ansible_distribution_release }}"
+
+- name: push sources_list
+  ansible.builtin.template:
+    src: "sources_list_{{ansible_distribution|lower}}.j2"
+    dest: "/etc/apt/sources.list"
