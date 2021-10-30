@@ -25,7 +25,7 @@
 #    proxy_address: "http://192.168.1.1:3128/"
   roles:
 #    - role: ubuntu_disable_ipv6
-#    - role: ubuntu_set_local_rep
+    - role: ubuntu_set_local_rep
     - role: ubuntu_default_deploy
       vars:
         ntp_servers: "ntp.office.sspk.spb.ru ru.pool.ntp.org"
