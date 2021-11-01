@@ -1,10 +1,16 @@
-- name: install zabbix repo
+- name: install zabbix sources list from deb
   ansible.builtin.apt: 
     deb: "{{zabbix_repo_deb_path}}"
   environment:
     http_proxy: "{{proxy_address | default('')}}"
     https_proxy: "{{proxy_address | default('')}}"
   when: zabbix_repo_deb_path is defined
+
+- name: push zabbix sources list from template
+  ansible.builtin.template:
+    src: "{{ansible_distribution|lower}}_zabbix.list.j2"
+    dest: "/etc/apt/sources.list.d/zabbix.list"
+  when: zabbix_repo_deb_path is not defined
 
 - name: install zabbix-agent2
   ansible.builtin.apt:

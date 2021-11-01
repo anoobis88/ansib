@@ -1,1 +1,1 @@
-zabbix_repo_deb_path: "https://repo.zabbix.com/zabbix/{{zabbix_version}}/{{ansible_distribution|lower}}/pool/main/z/zabbix-release/zabbix-release_{{zabbix_version}}-1%2B{{ansible_distribution_release}}_all.deb"
+#zabbix_repo_deb_path: "https://repo.zabbix.com/zabbix/{{zabbix_version}}/{{ansible_distribution|lower}}/pool/main/z/zabbix-release/zabbix-release_{{zabbix_version}}-1%2B{{ansible_distribution_release}}_all.deb"

@@ -1,5 +1,5 @@
 - name: deploy ubuntu
-  hosts: gitlab-ss
+  hosts: ubuntu-test
   gather_facts: true
   vars_prompt:
     - name: prompt_user
@@ -40,6 +40,6 @@
     - role: ubuntu_distribute_ca
       vars:
         rootca_path: "http://pki.office.sspk.spb.ru/sspk-root-ca/sspk-root-ca.crt"
-    - role: ubuntu_docker
-      vars:
-        docker_compose_version: 1.29.2
+#    - role: ubuntu_docker
+#      vars:
+#        docker_compose_version: 1.29.2

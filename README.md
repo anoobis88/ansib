@@ -29,7 +29,7 @@
 Для роли ubuntu_zabbix_agent2:
 * zabbix_server: rover-zbx.infra.adc.spb -- адрес zabbix сервера
 * zabbix_version -- версия zabbix, по умолчанию - 5.0
-
+* zabbix_repo_deb_path -- путь до deb-пакета устанавливающего репозиторий (по умолчанию закомментрован в vars/main.yml), если не определена используются шаблоны sources.list
 
 Для роли ubuntu_distribute_ca:
 * rootca_path -- место публикации сертификата корневого ЦС
